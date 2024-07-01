@@ -1,0 +1,55 @@
+﻿@model RecipeStep
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Step</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="row" enctype="multipart/form-data">
+            <input asp-for="@Model.Id" hidden />
+            <div class="row">
+                <div class="col-12">
+                    <div class="border p-3">
+
+                        <div class="row mb-3">
+                            <label asp-for="@Model.Position" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="@Model.Position" class="form-control" />
+                                <span asp-validation-for="@Model.Position" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="@Model.Description" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="@Model.Description" class="form-control" />
+                                <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label asp-for="@Model.RecipeProducts" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <select id="productSelect" data-placeholder="Select options" multiple="multiple" data-multi-select>
+                                    <option>Loading...</option>
+                                </select>
+                                <span asp-validation-for="@Model.RecipeProducts" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+        <script src="~/js/recipe_step_data.js"></script>
+    }
+}

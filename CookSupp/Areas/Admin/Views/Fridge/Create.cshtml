@@ -1,0 +1,117 @@
+﻿@model Fridge
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">Create Fridge</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <form method="post" class="row" id="fridgeForm">
+
+            <input asp-for="ApplicationUserId" hidden />
+            <input asp-for="FridgeProducts" hidden />
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="border p-3">
+
+                        <div class="row mb-3">
+                            <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label class="col-sm-2 col-form-label">
+                                Products
+                            </label>
+                            <div class="col-sm-10">
+                                <select id="productSelect" data-placeholder="Select options" multiple="multiple" data-multi-select></select>
+                            </div>
+                        </div>
+
+                       @foreach (var fridgeProduct in Model?.FridgeProducts ?? [])
+                        {
+                            <div class="col-sm-2 col-form-label"></div>
+
+                            <div class="row mb-3">
+                                <div class="col-sm-6">
+                                    <input asp-for="@fridgeProduct.Product.Name" class="form-control" />
+                                </div>
+                                <div class="col-sm-2">
+                                    <input asp-for="@fridgeProduct.Product.Quantity" class="form-control" />
+                                </div>
+                                <div class="col-sm-2">
+                                    <input asp-for="@fridgeProduct.Product.Unit" class="form-control" />
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row mt-3">
+                            <div class="col-6 col-md-3">
+                                <button type="submit" class="btn btn-primary form-control">
+                                    Create
+                                </button>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a asp-area="Admin" asp-controller="Fridge" asp-action="Index" class="btn btn-secondary form-control">
+                                    Back to List
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+            <partial name="_ValidationScriptsPartial" />
+    }
+
+    <script type="text/javascript">
+        
+        $.ajax({
+            url: '/admin/product/getall',
+            type: 'GET',
+            success: function (data) {
+                new MultiSelect(document.getElementById('productSelect'), {
+                    data: data.data.map(el => ({
+                        value: el.id,
+                        text: el.name
+                    })),
+                    placeholder: 'Select options',
+                    search: true,
+                    onChange: function (value, text, element) {
+
+                    },
+                    onSelect: function (value, text, element) {
+                        addProduct(value);
+                    },
+                    onUnselect: function (value, text, element) {
+                        removeProduct(value);
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("An error occurred: " + status + " " + error);
+            }
+        });
+        
+        function addProduct(product) { 
+            
+        }
+
+        function removeProduct(product) {
+
+        }
+    </script>
+}
