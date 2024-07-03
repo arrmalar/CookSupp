@@ -1,8 +1,10 @@
 ﻿using CookSupp.DataAccess.Repository.IRepository;
 using CookSupp.Models;
+using CookSupp.Models.ViewModels;
 using CookSupp.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
 using System.Security.Claims;
 
@@ -13,9 +15,12 @@ namespace CookSupp.Areas.Admin.Controllers
     public class FridgeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public FridgeController(IUnitOfWork unitOfWork)
+        private readonly IMemoryCache _memoryCache;
+
+        public FridgeController(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
+            _memoryCache = memoryCache;
         }
 
         public IActionResult Index()
@@ -31,24 +36,38 @@ namespace CookSupp.Areas.Admin.Controllers
 
             var fridge = new Fridge
             {
-                ApplicationUserId = _unitOfWork.ApplicationUserRepository.Get(u => u.Id == userId).Id,
+                ApplicationUserId = userId,
                 FridgeProducts = new List<FridgeProduct>()
             };
 
-            return View(fridge);
+            var fridgeVM = new FridgeVM
+            {
+                Fridge = fridge,
+                FridgeProductsNames = new List<string>()
+            };
+
+            return View(fridgeVM);
         }
 
         [HttpPost]
-        public IActionResult Create(Fridge fridge)
+        public IActionResult Create(FridgeVM fridgeVM)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _unitOfWork.FridgeRepository.Add(fridge);
-                _unitOfWork.Save();
-                TempData["success"] = "Fridge created successfully";
-                return RedirectToAction("Index");
+                return View();
             }
-            return View();
+        
+            var fridge = fridgeVM.Fridge;
+            var fridgeProducts = GetFridgeProductsNamesFromCache();
+
+            foreach (var fridgeProduct in fridgeProducts)
+            {
+                _unitOfWork.FridgeProductRepository.Add(fridgeProduct);
+            }
+
+            _unitOfWork.Save();
+            TempData["success"] = "Fridge created successfully";
+            return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int? id)
@@ -79,7 +98,7 @@ namespace CookSupp.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var objFridgeList = _unitOfWork.FridgeRepository.GetAll().ToList();
+            var objFridgeList = _unitOfWork.FridgeRepository.GetAll(includeProperties: "ApplicationUser").ToList();
             return Json(new { data = objFridgeList });
         }
 
@@ -96,6 +115,53 @@ namespace CookSupp.Areas.Admin.Controllers
             _unitOfWork.Save();
 
             return Json(new { success = true, message = "Delete successful" });
+        }
+
+        [HttpPost]
+        public IActionResult AddProduct(int productId,int fridgeId)
+        {
+            var fridgeProduct = new FridgeProduct
+            {
+                FridgeId = fridgeId,
+                ProductId = productId,
+            };
+            var products = GetFridgeProductsNamesFromCache();
+            products.Add(fridgeProduct);
+            SaveFridgeProductsNamesToCache(products);
+            
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult RemoveProduct(int productId, int fridgeId)
+        {
+            var fridgeProduct = new FridgeProduct
+            {
+                FridgeId = fridgeId,
+                ProductId = productId,
+            };
+            var products = GetFridgeProductsNamesFromCache();
+            products.Remove(fridgeProduct);
+            SaveFridgeProductsNamesToCache(products);
+
+            return Ok();
+        }
+
+        private List<FridgeProduct> GetFridgeProductsNamesFromCache()
+        {
+            return _memoryCache.GetOrCreate("FridgeProductsNames", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return new List<FridgeProduct>();
+            });
+        }
+
+        private void SaveFridgeProductsNamesToCache(List<FridgeProduct> products)
+        {
+            _memoryCache.Set("FridgeProductsNames", products, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(30)
+            });
         }
     }
 }

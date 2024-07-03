@@ -16,6 +16,7 @@ namespace CookSupp.DataAccess.Data
         public DbSet<RecipeStep> RecipeSteps { get; set; }
         public DbSet<Fridge> Fridges { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<FridgeProduct> FridgeProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

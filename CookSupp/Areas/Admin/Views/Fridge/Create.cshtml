@@ -1,4 +1,4 @@
-﻿@model Fridge
+﻿@model FridgeVM
 
 <div class="card shadow border-0 mt-4">
     <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
@@ -10,19 +10,17 @@
     </div>
     <div class="card-body p-4">
         <form method="post" class="row" id="fridgeForm">
-
-            <input asp-for="ApplicationUserId" hidden />
-            <input asp-for="FridgeProducts" hidden />
+            <input asp-for="Fridge.ApplicationUserId" hidden />
 
             <div class="row">
                 <div class="col-12">
                     <div class="border p-3">
 
                         <div class="row mb-3">
-                            <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+                            <label asp-for="Fridge.Name" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-10">
-                                <input asp-for="Name" class="form-control" />
-                                <span asp-validation-for="Name" class="text-danger"></span>
+                                <input asp-for="Fridge.Name" class="form-control" />
+                                <span asp-validation-for="Fridge.Name" class="text-danger"></span>
                             </div>
                         </div>
 
@@ -35,7 +33,7 @@
                             </div>
                         </div>
 
-                       @foreach (var fridgeProduct in Model?.FridgeProducts ?? [])
+                       @* @foreach (var fridgeProduct in Model?.FridgeProducts ?? [])
                         {
                             <div class="col-sm-2 col-form-label"></div>
 
@@ -50,7 +48,7 @@
                                     <input asp-for="@fridgeProduct.Product.Unit" class="form-control" />
                                 </div>
                             </div>
-                        }
+                        } *@
 
                         <div class="row mt-3">
                             <div class="col-6 col-md-3">
@@ -64,7 +62,6 @@
                                 </a>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -78,7 +75,7 @@
     }
 
     <script type="text/javascript">
-        
+
         $.ajax({
             url: '/admin/product/getall',
             type: 'GET',
@@ -90,14 +87,12 @@
                     })),
                     placeholder: 'Select options',
                     search: true,
-                    onChange: function (value, text, element) {
-
+                    onChange: function (productId, text, element) {},
+                    onSelect: function (productId, text, element) {
+                        addProduct(productId, @Model.Fridge.Id);
                     },
-                    onSelect: function (value, text, element) {
-                        addProduct(value);
-                    },
-                    onUnselect: function (value, text, element) {
-                        removeProduct(value);
+                    onUnselect: function (productId, text, element) {
+                        removeProduct(productId, @Model.Fridge.Id);
                     }
                 });
             },
@@ -105,13 +100,33 @@
                 console.error("An error occurred: " + status + " " + error);
             }
         });
-        
-        function addProduct(product) { 
-            
+
+        function addProduct(productId, fridgeId) {
+            $.ajax({
+                url: '@Url.Action("AddProduct", "Fridge")',
+                type: 'POST',
+                data: { productId: productId, fridgeId: fridgeId },
+                success: function (response) {
+                    // Handle success
+                },
+                error: function (xhr, status, error) {
+                    console.error("An error occurred: " + status + " " + error);
+                }
+            });
         }
 
-        function removeProduct(product) {
-
+        function removeProduct(productId, fridgeId) {
+            $.ajax({
+                url: '@Url.Action("RemoveProduct", "Fridge")',
+                type: 'POST',
+                data: { productId: productId, fridgeId: fridgeId },
+                success: function (response) {
+                    // Handle success
+                },
+                error: function (xhr, status, error) {
+                    console.error("An error occurred: " + status + " " + error);
+                }
+            });
         }
     </script>
 }

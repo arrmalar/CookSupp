@@ -6,6 +6,7 @@
         IRecipeRepository RecipeRepository { get; }
         IFridgeRepository FridgeRepository { get; }
         IApplicationUserRepository ApplicationUserRepository { get; }
+        IFridgeProductRepository FridgeProductRepository { get; }
         void Save();
     }
 }
