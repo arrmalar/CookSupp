@@ -40,31 +40,22 @@ namespace CookSupp.Areas.Admin.Controllers
                 FridgeProducts = new List<FridgeProduct>()
             };
 
-            var fridgeVM = new FridgeVM
-            {
-                Fridge = fridge,
-                FridgeProductsNames = new List<string>()
-            };
+            SaveFridgeProductsNamesToCache(new List<FridgeProduct>());
 
-            return View(fridgeVM);
+            return View(fridge);
         }
 
         [HttpPost]
-        public IActionResult Create(FridgeVM fridgeVM)
+        public IActionResult Create(Fridge fridge)
         {
             if (!ModelState.IsValid)
             {
                 return View();
             }
-        
-            var fridge = fridgeVM.Fridge;
-            var fridgeProducts = GetFridgeProductsNamesFromCache();
 
-            foreach (var fridgeProduct in fridgeProducts)
-            {
-                _unitOfWork.FridgeProductRepository.Add(fridgeProduct);
-            }
+            fridge.FridgeProducts = GetFridgeProductsNamesFromCache();
 
+            _unitOfWork.FridgeRepository.Add(fridge);
             _unitOfWork.Save();
             TempData["success"] = "Fridge created successfully";
             return RedirectToAction("Index");
@@ -72,27 +63,55 @@ namespace CookSupp.Areas.Admin.Controllers
 
         public IActionResult Edit(int? id)
         {
-            var fridge = _unitOfWork.FridgeRepository.Get(p => p.Id == id);
+            var fridge = _unitOfWork.FridgeRepository.Get(p => p.Id == id, includeProperties: "ApplicationUser,FridgeProducts");
+            var fridgeProducts = fridge.FridgeProducts.Select(fp => fp.ProductId ).ToList();
 
             if (fridge != null)
             {
-                return View(fridge);
+                var model = new FridgeVM
+                {
+                    Fridge = fridge,
+                    SelectedProductsIds = fridgeProducts
+                };
+
+                SaveFridgeProductsNamesToCache(fridge.FridgeProducts.ToList());
+                return View(model);
             }
 
             return NotFound();
         }
 
         [HttpPost]
-        public IActionResult Edit(Fridge? fridge)
+        public IActionResult Edit(Fridge fridge)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _unitOfWork.FridgeRepository.Update(fridge);
-                _unitOfWork.Save();
-                TempData["success"] = "Fridge edited successfully";
-                return RedirectToAction("Index");
+                return View(fridge);
             }
-            return View();
+
+            if (fridge != null)
+            {
+                var existingFridge = _unitOfWork.FridgeRepository.Get(f => f.Id == fridge.Id, includeProperties: "FridgeProducts");
+
+                existingFridge.FridgeProducts.Clear();
+
+                existingFridge.Name = fridge.Name;
+
+                foreach (var product in GetFridgeProductsNamesFromCache()) {
+                    existingFridge.FridgeProducts.Add(new FridgeProduct
+                    {
+                        ProductId = product.ProductId,
+                        FridgeId = product.FridgeId
+                    });
+                }
+
+
+                _unitOfWork.FridgeRepository.Update(existingFridge);
+                _unitOfWork.Save();
+            }
+
+            TempData["success"] = "Fridge edited successfully";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -141,7 +160,13 @@ namespace CookSupp.Areas.Admin.Controllers
                 ProductId = productId,
             };
             var products = GetFridgeProductsNamesFromCache();
-            products.Remove(fridgeProduct);
+            var productToRemove = products.FirstOrDefault(p => p.ProductId == productId && p.FridgeId == fridgeId);
+
+            if (productToRemove != null)
+            {
+                products.Remove(productToRemove);
+            }
+
             SaveFridgeProductsNamesToCache(products);
 
             return Ok();

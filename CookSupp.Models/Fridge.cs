@@ -19,7 +19,7 @@ namespace CookSupp.Models
         [ValidateNever]
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Required]
+        [ValidateNever]
         public ICollection<FridgeProduct> FridgeProducts { get; set; }
     }
 }

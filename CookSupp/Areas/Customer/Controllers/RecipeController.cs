@@ -3,10 +3,12 @@ using CookSupp.Models;
 using CookSupp.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CookSupp.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class RecipeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -17,23 +19,24 @@ namespace CookSupp.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            //var objRecipeList = _unitOfWork.RecipeRepository.GetAll();
             return View();
         }
 
         public IActionResult Create()
         {
-            return View();
-        }
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-        public IActionResult Details()
-        {
-            return View();
-        }
+            var recipe = new Recipe
+            {
+                ApplicationUserId = userId,
+                Approved = false,
+                a
+            };
 
-        public IActionResult Step()
-        {
-            return View();
+            SaveFridgeProductsNamesToCache(new List<FridgeProduct>());
+
+            return View(fridge);
         }
 
         [HttpPost]

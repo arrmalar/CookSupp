@@ -15,12 +15,15 @@ namespace CookSupp.DataAccess.Repository
 
         public IApplicationUserRepository ApplicationUserRepository { get; private set; }
 
+        public IFridgeProductRepository FridgeProductRepository { get; private set; }
+
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             ProductRepository = new ProductRepository(_db);
             RecipeRepository = new RecipeRepository(_db);
             FridgeRepository = new FridgeRepository(_db);
+            FridgeProductRepository = new FridgeProductRepository(_db);
             ApplicationUserRepository = new ApplicationUserRepository(_db);
         }
 

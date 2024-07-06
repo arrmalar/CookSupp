@@ -10,13 +10,26 @@
     </div>
     <div class="card-body p-4">
         <form method="post" class="row">
+            <input asp-for="Id" hidden />
+            <input asp-for="ApplicationUserId" hidden />
+            <input asp-for="RecipeProducts" hidden />
+
+            <div class="border p-3 mt-4">
             <div class="border p-3">
                 @* <div asp-validation-summary="All"></div> *@
+
                 <div class="form-floating py-2 col-12">
                     <input asp-for="Title" class="form-control border-0 shadow" />
                     <label asp-for="Title" class="ms-2"></label>
                     <span asp-validation-for="Title" class="text-danger"></span>
                 </div>
+
+                <div class="form-floating py-2 col-12">
+                    <input asp-for="Description" class="form-control border-0 shadow" />
+                        <label asp-for="Description" class="ms-2"></label>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
                 <div class="row mt-3">
                     <div class="col-6 col-md-3">
                         <button type="submit" class="btn btn-primary form-control">

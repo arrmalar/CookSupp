@@ -1,10 +1,12 @@
 ﻿using CookSupp.DataAccess.Repository.IRepository;
 using CookSupp.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CookSupp.Areas.Customer.Controllers
 {
     [Area("Customer")]
+    [Authorize]
     public class FridgeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

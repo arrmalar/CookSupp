@@ -24,15 +24,16 @@ namespace CookSupp.Areas.Admin.Controllers
 
         public IActionResult Create()
         {
+
             return View();
         }
 
         [HttpPost]
-        public IActionResult Create(Product product)
+        public IActionResult Create(Recipe recipe)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.ProductRepository.Add(product);
+                _unitOfWork.RecipeRepository.Add(recipe);
                 _unitOfWork.Save();
                 TempData["success"] = "Product created successfully";
                 return RedirectToAction("Index");
@@ -42,24 +43,24 @@ namespace CookSupp.Areas.Admin.Controllers
 
         public IActionResult Edit(int? id)
         {
-            var product = _unitOfWork.ProductRepository.Get(p => p.Id == id);
+            var recipe = _unitOfWork.RecipeRepository.Get(p => p.Id == id);
 
-            if (product != null)
+            if (recipe != null)
             {
-                return View(product);
+                return View(recipe);
             }
 
             return NotFound();
         }
 
         [HttpPost]
-        public IActionResult Edit(Product? product)
+        public IActionResult Edit(Recipe? recipe)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.ProductRepository.Update(product);
+                _unitOfWork.RecipeRepository.Update(recipe);
                 _unitOfWork.Save();
-                TempData["success"] = "Category edited successfully";
+                TempData["success"] = "Recipe edited successfully";
                 return RedirectToAction("Index");
             }
             return View();
@@ -68,8 +69,8 @@ namespace CookSupp.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var objProductList = _unitOfWork.ProductRepository.GetAll().ToList();
-            return Json(new { data = objProductList });
+            var objRecipeList = _unitOfWork.RecipeRepository.GetAll().ToList();
+            return Json(new { data = objRecipeList });
         }
 
         public IActionResult Delete(int? id)

@@ -10,10 +10,6 @@ namespace CookSupp.Models
         [Required]
         public string Name { get; set; }
 
-        public string? Unit { get; set; }
-
-        public double? Quantity { get; set; }
-
         public ICollection<FridgeProduct> FridgeProducts { get; set; }
         public ICollection<RecipeProduct> RecipeProducts { get; set; }
 

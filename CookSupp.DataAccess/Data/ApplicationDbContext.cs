@@ -13,7 +13,6 @@ namespace CookSupp.DataAccess.Data
 
         public DbSet<Product> Products { get; set; }
         public DbSet<Recipe> Recipes { get; set; }
-        public DbSet<RecipeStep> RecipeSteps { get; set; }
         public DbSet<Fridge> Fridges { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<FridgeProduct> FridgeProducts { get; set; }
@@ -47,8 +46,6 @@ namespace CookSupp.DataAccess.Data
                 .HasOne(fp => fp.Product)
                 .WithMany(p => p.RecipeProducts)
                 .HasForeignKey(fp => fp.ProductId);
-
-            modelBuilder.Entity<RecipeStep>().HasData();
 
             modelBuilder.Entity<Recipe>().HasData();
 

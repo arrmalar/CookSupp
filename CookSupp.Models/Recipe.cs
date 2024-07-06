@@ -13,17 +13,17 @@ namespace CookSupp.Models
         public string Title { get; set; }
 
         [Required]
+        public string Description { get; set; }
+
+        [Required]
         public string ApplicationUserId { get; set; }
 
         [ForeignKey("ApplicationUserId")]
         [ValidateNever]
         public ApplicationUser ApplicationUser { get; set; }
 
-        [Required]
+        [ValidateNever]
         public ICollection<RecipeProduct> RecipeProducts { get; set; }
-
-        [Required]
-        public ICollection<RecipeStep> RecipeSteps { get; set; }
 
         [Required]
         public bool Approved { get; set; } = false;

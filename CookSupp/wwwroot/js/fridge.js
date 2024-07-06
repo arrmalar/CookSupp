@@ -7,16 +7,16 @@ function loadDataTable() {
         "ajax": { url: '/admin/fridge/getall' },
         "columns": [
             { data: 'name', "width": "25%" },
-            { data: 'applicationUser.id', "width": "25%" },
+            { data: 'applicationUser.id', "width": "45%" },
             {
                 data: 'id',
                 "render": function (data) {
-                    return `<div class="w-75 btn-group" role="group">
+                    return `<div class="w-100 btn-group" role="group">
                      <a href="/admin/fridge/edit?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
                      <a onClick=Delete('/admin/fridge/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
                     </div>`
                 },
-                "width": "50%"
+                "width": "30%"
             }
         ]
     });

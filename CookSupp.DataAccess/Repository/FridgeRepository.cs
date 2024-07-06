@@ -13,9 +13,16 @@ namespace CookSupp.DataAccess.Repository
             _db = db;
         }
 
-        public void Update(Fridge obj)
+        public void Update(Fridge fridge)
         {
-            _db.Fridges.Update(obj);
+            var objFromDb = _db.Fridges.FirstOrDefault(f => f.Id == fridge.Id);
+            if (objFromDb != null)
+            {
+                objFromDb.Name = fridge.Name;
+                _db.Entry(objFromDb).Collection(f => f.FridgeProducts).Load();
+                objFromDb.FridgeProducts = fridge.FridgeProducts;
+                _db.Fridges.Update(objFromDb);
+            }
         }
     }
 }

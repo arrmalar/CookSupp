@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CookSupp.Models.ViewModels
 {
@@ -10,6 +6,6 @@ namespace CookSupp.Models.ViewModels
     {
         public Fridge Fridge { get; set; }
 
-        public ICollection<string> FridgeProductsNames { get; set; }
+        public List<int> SelectedProductsIds { get; set; }
     }
 }

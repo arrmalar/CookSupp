@@ -1,4 +1,4 @@
-﻿@model Fridge
+﻿@model FridgeVM
 
 <div class="card shadow border-0 mt-4">
     <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
@@ -10,34 +10,102 @@
     </div>
     <div class="card-body p-4">
         <form method="post" class="row">
-            <input asp-for="Id" hidden />
+            <input asp-for="Fridge.Id" hidden />
+            <input asp-for="Fridge.ApplicationUserId" hidden />
+            <input asp-for="Fridge.FridgeProducts" hidden />
             <div class="border p-3 mt-4">
                 @* <div asp-validation-summary="All"></div> *@
-                <div class="form-floating py-2 col-12">
-                    <input asp-for="Name" class="form-control border-0 shadow" />
-                    <label asp-for="Name" class="ms-2"></label>
-                    <span asp-validation-for="Name" class="text-danger"></span>
+
+                <div class="row mb-3">
+                    <label asp-for="Fridge.Name" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <input asp-for="Fridge.Name" class="form-control" />
+                        <span asp-validation-for="Fridge.Name" class="text-danger"></span>
+                    </div>
                 </div>
 
                 <div class="row mb-3">
-                    <label asp-for="@Model.FridgeProducts" class="col-sm-2 col-form-label"></label>
+                    <label class="col-sm-2 col-form-label">
+                        Products
+                    </label>
                     <div class="col-sm-10">
-                        <select id="productSelect" data-placeholder="Select options" multiple="multiple" data-multi-select>
-                            <option>Loading...</option>
-                        </select>
-                        <span asp-validation-for="@Model.FridgeProducts" class="text-danger"></span>
+                        <select id="productSelectEdit" data-placeholder="Select options" multiple="multiple" data-multi-select></select>
                     </div>
                 </div>
 
                 <div class="row mt-3">
                     <div class="col-6 col-md-3">
-                        <button type="submit" class="btn btn-primary form-control">Edit</button>
+                        <button type="submit" class="btn btn-primary form-control">
+                            Edit
+                        </button>
                     </div>
                     <div class="col-6 col-md-3">
-                        <a asp-controller="Product" asp-action="Index" class="btn btn-secondary form-control">Back to List</a>
+                        <a asp-area="Admin" asp-controller="Fridge" asp-action="Index" class="btn btn-secondary form-control">
+                            Back to List
+                        </a>
                     </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    @{
+            <partial name="_ValidationScriptsPartial" />
+    }
+
+    <script type="text/javascript">
+        $.ajax({
+            url: '/admin/product/getall',
+            type: 'GET',
+            success: function (data) {
+                const selectedProductIds = @Html.Raw(Json.Serialize(Model.SelectedProductsIds));
+
+                new MultiSelect(document.getElementById('productSelectEdit'), {
+                    data: data.data.map(el => ({
+                        value: el.id,
+                        text: el.name,
+                        selected: selectedProductIds.includes(el.id)
+                    })),
+                    placeholder: 'Select options',
+                    search: true,
+                    onChange: function (productId, text, element) { },
+                    onSelect: function (productId, text, element) {
+                        addProduct(productId, @Model.Fridge.Id);
+                    },
+                    onUnselect: function (productId, text, element) {
+                        removeProduct(productId, @Model.Fridge.Id);
+                    }
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error("An error occurred: " + status + " " + error);
+            }
+        });
+
+        function addProduct(productId, fridgeId) {
+            $.ajax({
+                url: '@Url.Action("AddProduct", "Fridge")',
+                type: 'POST',
+                data: { productId: productId, fridgeId: fridgeId },
+                success: function (response) { },
+                error: function (xhr, status, error) {
+                    console.error("An error occurred: " + status + " " + error);
+                }
+            });
+        }
+
+        function removeProduct(productId, fridgeId) {
+            $.ajax({
+                url: '@Url.Action("RemoveProduct", "Fridge")',
+                type: 'POST',
+                data: { productId: productId, fridgeId: fridgeId },
+                success: function (response) { },
+                error: function (xhr, status, error) {
+                    console.error("An error occurred: " + status + " " + error);
+                }
+            });
+        }
+    </script>
+}

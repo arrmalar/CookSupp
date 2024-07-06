@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CookSupp.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = $"{SD.Role_Admin},{SD.Role_Customer}")]
     public class ProductController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
