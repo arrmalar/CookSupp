@@ -41,6 +41,9 @@
                                     <li>
                                         <a class="dropdown-item" asp-area="Admin" asp-controller="Recipe" asp-action="Index">Recipes</a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index">User</a>
+                                    </li>
                                     <li><hr class="dropdown-divider"></li>
                                 </ul>
 
@@ -49,29 +52,45 @@
 
                         @if (User.Identity.IsAuthenticated)
                         {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Recipes
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="Create">Create</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="Search">Search</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="MyRecipes">My Recipes</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Customer" asp-controller="Fridge" asp-action="Index">Fridges</a>
+                            </li>
+                        }
+
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Recipes
+                                Sandboxes
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="Create">Create</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="Search">Search</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="Customer" asp-controller="Recipe" asp-action="MyRecipes">My Recipes</a>
+                                    <a class="dropdown-item" asp-area="Sandbox" asp-controller="Sandbox" asp-action="Index">JQuery</a>
                                 </li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
                             </ul>
+
                         </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Customer" asp-controller="Fridge" asp-action="Index">Fridges</a>
-                        </li>
-                        }
+
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -84,12 +103,6 @@
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - Nursing - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

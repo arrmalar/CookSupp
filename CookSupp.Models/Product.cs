@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.ComponentModel.DataAnnotations;
 
 namespace CookSupp.Models
 {
@@ -10,8 +11,10 @@ namespace CookSupp.Models
         [Required]
         public string Name { get; set; }
 
+        [ValidateNever]
         public ICollection<FridgeProduct> FridgeProducts { get; set; }
-        public ICollection<RecipeProduct> RecipeProducts { get; set; }
 
+        [ValidateNever]
+        public ICollection<RecipeProduct> RecipeProducts { get; set; }
     }
 }

@@ -11,7 +11,12 @@ namespace CookSupp.Models
         [Key, Column(Order = 1)]
         public int ProductId { get; set; }
 
+        public string? Unit { get; set; }
+
+        public double? Quantity { get; set; }
+
         public Recipe Recipe { get; set; }
+
         public Product Product { get; set; }
     }
 }

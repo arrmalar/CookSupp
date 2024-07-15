@@ -1,44 +1,51 @@
-﻿@model SearchDataVM
+﻿@model Fridge
 
 <div class="card shadow border-0 mt-4">
+
     <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
         <div class="row">
             <div class="col-12 text-center">
-                <h2 class="text-white py-2">Main Page</h2>
+                <h2 class="text-white py-2">Create Fridge</h2>
             </div>
         </div>
     </div>
+
     <div class="card-body p-4">
-        <form method="post" class="row">
+        <form method="post" class="row" id="fridgeForm">
+            <input asp-for="ApplicationUserId" hidden />
+
             <div class="row">
                 <div class="col-12">
                     <div class="border p-3">
+
                         <div class="row mb-3">
-                            <div class="col-sm-12">
-                                <input placeholder="Search" asp-for="Text" class="form-control" />
+                            <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-sm-12">
-                                <select id="productSelect" data-placeholder="Products" multiple="multiple" data-multi-select></select>
+                            <label class="col-sm-2 col-form-label">
+                                Products
+                            </label>
+                            <div class="col-sm-10">
+                                <select id="productSelect" data-placeholder="Select options" multiple="multiple" data-multi-select></select>
                             </div>
                         </div>
 
                         <div class="row mt-3">
-                            <div class="col-6 col-md-3 text-center">
+                            <div class="col-6 col-md-3">
                                 <button type="submit" class="btn btn-primary form-control">
-                                    Search
+                                    Create
                                 </button>
                             </div>
-                        </div>
-
-                        <!-- Scrollable container -->
-                        <div class="scrollable-container mt-3" style="max-height: 400px; overflow-y: auto;">
-                            @foreach (var recipe in Model?.SearchedRecipes ?? [])
-                            {
-                                <partial name="RecipeListItem" model="recipe" />
-                            }
+                            <div class="col-6 col-md-3">
+                                <a asp-area="Admin" asp-controller="Fridge" asp-action="Index" class="btn btn-secondary form-control">
+                                    Back to List
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -54,27 +61,22 @@
 
     <script type="text/javascript">
         $.ajax({
-            url: '/customer/home/getAllProducts',
+            url: '/admin/product/getall',
             type: 'GET',
             success: function (data) {
-                const selectedProductIds = @Html.Raw(Json.Serialize(Model.SelectedProductsIds));
-
                 new MultiSelect(document.getElementById('productSelect'), {
                     data: data.data.map(el => ({
                         value: el.id,
-                        text: el.name,
-                        selected: selectedProductIds.includes(el.id)
+                        text: el.name
                     })),
                     placeholder: 'Select options',
                     search: true,
-                    onChange: function (productId, text, element) {
-
-                    },
+                    onChange: function (productId, text, element) { },
                     onSelect: function (productId, text, element) {
-                        addProduct(productId);
+                        addProduct(productId, @Model.Id);
                     },
                     onUnselect: function (productId, text, element) {
-                        removeProduct(productId);
+                        removeProduct(productId, @Model.Id);
                     }
                 });
             },
@@ -83,11 +85,11 @@
             }
         });
 
-        function addProduct(productId) {
+        function addProduct(productId, fridgeId) {
             $.ajax({
-                url: '@Url.Action("AddProduct", "Home")',
+                url: '@Url.Action("AddProduct", "Fridge")',
                 type: 'POST',
-                data: { productId: productId },
+                data: { productId: productId, fridgeId: fridgeId },
                 success: function (response) { },
                 error: function (xhr, status, error) {
                     console.error("An error occurred: " + status + " " + error);
@@ -95,11 +97,11 @@
             });
         }
 
-        function removeProduct(productId) {
+        function removeProduct(productId, fridgeId) {
             $.ajax({
-                url: '@Url.Action("RemoveProduct", "Home")',
+                url: '@Url.Action("RemoveProduct", "Fridge")',
                 type: 'POST',
-                data: { productId: productId },
+                data: { productId: productId, fridgeId: fridgeId },
                 success: function (response) { },
                 error: function (xhr, status, error) {
                     console.error("An error occurred: " + status + " " + error);

@@ -6,6 +6,6 @@ namespace CookSupp.Models.ViewModels
     {
         public Fridge Fridge { get; set; }
 
-        public List<int> SelectedProductsIds { get; set; }
+        public ICollection<int> SelectedProductsIds { get; set; }
     }
 }

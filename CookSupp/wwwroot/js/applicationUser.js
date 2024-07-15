@@ -3,17 +3,18 @@ $(document).ready(function () {
     loadDataTable();
 });
 function loadDataTable() {
-    dataTable = $('#recipeTblData').DataTable({
-        "ajax": { url: '/admin/recipe/getall' },
+    dataTable = $('#applicationUserTblData').DataTable({
+        "ajax": { url: '/admin/user/getall' },
         "columns": [
-            { data: 'title', "width": "25%" },
-            { data: 'applicationUser.id', "width": "45%" },
+            { data: 'id', "width": "20%" },
+            { data: 'userName', "width": "25%" },
+            { data: 'email', "width": "25%" },
             {
                 data: 'id',
                 "render": function (data) {
                     return `<div class="w-100 btn-group" role="group">
-                     <a href="/admin/recipe/edit?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
-                     <a onClick=Delete('/admin/recipe/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                     <a href="/admin/user/edit?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
+                     <a onClick=Delete('/admin/user/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
                     </div>`
                 },
                 "width": "30%"

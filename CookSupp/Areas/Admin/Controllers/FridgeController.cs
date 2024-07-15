@@ -5,7 +5,6 @@ using CookSupp.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using System.Net;
 using System.Security.Claims;
 
 namespace CookSupp.Areas.Admin.Controllers
