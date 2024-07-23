@@ -24,18 +24,13 @@ namespace CookSupp.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var objFridgeList = _unitOfWork.FridgeRepository.GetAll();
-            return View(objFridgeList);
+            return View();
         }
 
         public IActionResult Create()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
-            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
             var fridge = new Fridge
             {
-                ApplicationUserId = userId,
                 FridgeProducts = new List<FridgeProduct>()
             };
 
@@ -90,22 +85,17 @@ namespace CookSupp.Areas.Admin.Controllers
 
             if (fridge != null)
             {
-                var existingFridge = _unitOfWork.FridgeRepository.Get(f => f.Id == fridge.Id, includeProperties: "FridgeProducts");
-
-                existingFridge.FridgeProducts.Clear();
-
-                existingFridge.Name = fridge.Name;
+                fridge.FridgeProducts = new List<FridgeProduct>();
 
                 foreach (var product in GetFridgeProductsNamesFromCache()) {
-                    existingFridge.FridgeProducts.Add(new FridgeProduct
+                    fridge.FridgeProducts.Add(new FridgeProduct
                     {
                         ProductId = product.ProductId,
                         FridgeId = product.FridgeId
                     });
                 }
 
-
-                _unitOfWork.FridgeRepository.Update(existingFridge);
+                _unitOfWork.FridgeRepository.Update(fridge);
                 _unitOfWork.Save();
             }
 

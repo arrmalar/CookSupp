@@ -1,7 +1,6 @@
 ﻿@model Fridge
 
 <div class="card shadow border-0 mt-4">
-
     <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
         <div class="row">
             <div class="col-12 text-center">
@@ -9,11 +8,9 @@
             </div>
         </div>
     </div>
-
     <div class="card-body p-4">
         <form method="post" class="row" id="fridgeForm">
             <input asp-for="ApplicationUserId" hidden />
-
             <div class="row">
                 <div class="col-12">
                     <div class="border p-3">
@@ -42,11 +39,12 @@
                                 </button>
                             </div>
                             <div class="col-6 col-md-3">
-                                <a asp-area="Admin" asp-controller="Fridge" asp-action="Index" class="btn btn-secondary form-control">
+                                <a asp-area="Customer" asp-controller="Fridge" asp-action="Index" class="btn btn-secondary form-control">
                                     Back to List
                                 </a>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -56,7 +54,7 @@
 
 @section Scripts {
     @{
-        <partial name="_ValidationScriptsPartial" />
+            <partial name="_ValidationScriptsPartial" />
     }
 
     <script type="text/javascript">
@@ -71,7 +69,7 @@
                     })),
                     placeholder: 'Select options',
                     search: true,
-                    onChange: function (productId, text, element) { },
+                    onChange: function (productId, text, element) {},
                     onSelect: function (productId, text, element) {
                         addProduct(productId, @Model.Id);
                     },
@@ -90,7 +88,7 @@
                 url: '@Url.Action("AddProduct", "Fridge")',
                 type: 'POST',
                 data: { productId: productId, fridgeId: fridgeId },
-                success: function (response) { },
+                success: function (response) {},
                 error: function (xhr, status, error) {
                     console.error("An error occurred: " + status + " " + error);
                 }
@@ -102,7 +100,7 @@
                 url: '@Url.Action("RemoveProduct", "Fridge")',
                 type: 'POST',
                 data: { productId: productId, fridgeId: fridgeId },
-                success: function (response) { },
+                success: function (response) {},
                 error: function (xhr, status, error) {
                     console.error("An error occurred: " + status + " " + error);
                 }

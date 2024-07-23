@@ -11,11 +11,17 @@
     <div class="card-body p-4">
         <form method="post" class="row">
             <input asp-for="Fridge.Id" hidden />
-            <input asp-for="Fridge.ApplicationUserId" hidden />
-            <input asp-for="Fridge.FridgeProducts" hidden />
             <div class="row">
                 <div class="col-12">
                     <div class="border p-3">
+                        <div class="row mb-3">
+                            <label asp-for="Fridge.ApplicationUserId" class="col-sm-2 col-form-label"></label>
+                            <div class="col-sm-10">
+                                <input asp-for="Fridge.ApplicationUserId" class="form-control" />
+                                <span asp-validation-for="Fridge.ApplicationUserId" class="text-danger"></span>
+                            </div>
+                        </div>
+
                         <div class="row mb-3">
                             <label asp-for="Fridge.Name" class="col-sm-2 col-form-label"></label>
                             <div class="col-sm-10">

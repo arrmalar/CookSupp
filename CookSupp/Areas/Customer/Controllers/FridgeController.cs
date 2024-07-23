@@ -1,7 +1,10 @@
 ﻿using CookSupp.DataAccess.Repository.IRepository;
 using CookSupp.Models;
+using CookSupp.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 
 namespace CookSupp.Areas.Customer.Controllers
 {
@@ -10,91 +13,175 @@ namespace CookSupp.Areas.Customer.Controllers
     public class FridgeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public FridgeController(IUnitOfWork unitOfWork)
+        private readonly IMemoryCache _memoryCache;
+
+        public FridgeController(IUnitOfWork unitOfWork, IMemoryCache memoryCache)
         {
             _unitOfWork = unitOfWork;
+            _memoryCache = memoryCache;
         }
 
         public IActionResult Index()
         {
-            var objRecipeList = _unitOfWork.RecipeRepository.GetAll();
             return View();
         }
 
         public IActionResult Create()
         {
-            return View();
-        }
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-        public IActionResult Details()
-        {
-            return View();
-        }
+            var fridge = new Fridge
+            {
+                ApplicationUserId = userId,
+                FridgeProducts = new List<FridgeProduct>()
+            };
 
-        public IActionResult Step()
-        {
-            return View();
+            SaveFridgeProductsNamesToCache(new List<FridgeProduct>());
+
+            return View(fridge);
         }
 
         [HttpPost]
-        public IActionResult Create(Recipe recipe)
+        public IActionResult Create(Fridge fridge)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _unitOfWork.RecipeRepository.Add(recipe);
-                _unitOfWork.Save();
-                TempData["success"] = "Recipe created successfully";
-                return RedirectToAction("Index");
+                return View();
             }
-            return View();
+
+            fridge.FridgeProducts = GetFridgeProductsNamesFromCache();
+
+            _unitOfWork.FridgeRepository.Add(fridge);
+            _unitOfWork.Save();
+            TempData["success"] = "Fridge created successfully";
+            return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int? id)
         {
-            var recipe = _unitOfWork.RecipeRepository.Get(p => p.Id == id);
+            var fridge = _unitOfWork.FridgeRepository.Get(p => p.Id == id, includeProperties: "ApplicationUser,FridgeProducts");
+            var fridgeProducts = fridge.FridgeProducts.Select(fp => fp.ProductId).ToList();
 
-            if (recipe != null)
+            if (fridge != null)
             {
-                return View(recipe);
+                var model = new FridgeVM
+                {
+                    Fridge = fridge,
+                    SelectedProductsIds = fridgeProducts
+                };
+
+                SaveFridgeProductsNamesToCache(fridge.FridgeProducts.ToList());
+                return View(model);
             }
 
             return NotFound();
         }
 
         [HttpPost]
-        public IActionResult Edit(Recipe? recipe)
+        public IActionResult Edit(Fridge fridge)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _unitOfWork.RecipeRepository.Update(recipe);
-                _unitOfWork.Save();
-                TempData["success"] = "Recipe edited successfully";
-                return RedirectToAction("Index");
+                return View(fridge);
             }
-            return View();
+
+            if (fridge != null)
+            {
+                fridge.FridgeProducts = new List<FridgeProduct>();
+
+                foreach (var product in GetFridgeProductsNamesFromCache())
+                {
+                    fridge.FridgeProducts.Add(new FridgeProduct
+                    {
+                        ProductId = product.ProductId,
+                        FridgeId = product.FridgeId
+                    });
+                }
+
+                _unitOfWork.FridgeRepository.Update(fridge);
+                _unitOfWork.Save();
+            }
+
+            TempData["success"] = "Fridge edited successfully";
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            var objRecipeList = _unitOfWork.RecipeRepository.GetAll().ToList();
-            return Json(new { data = objRecipeList });
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            var objFridgeList = _unitOfWork.FridgeRepository.GetAll(includeProperties: "ApplicationUser").Where(f => f.ApplicationUserId == userId).ToList();
+            return Json(new { data = objFridgeList });
         }
 
         public IActionResult Delete(int? id)
         {
-            var recipeToBeDeleted = _unitOfWork.RecipeRepository.Get(u => u.Id == id);
+            var fridgeToBeDeleted = _unitOfWork.FridgeRepository.Get(u => u.Id == id);
 
-            if (recipeToBeDeleted == null)
+            if (fridgeToBeDeleted == null)
             {
                 return Json(new { success = false, message = "Error while deleting" });
             }
 
-            _unitOfWork.RecipeRepository.Remove(recipeToBeDeleted);
+            _unitOfWork.FridgeRepository.Remove(fridgeToBeDeleted);
             _unitOfWork.Save();
 
             return Json(new { success = true, message = "Delete successful" });
         }
 
+        [HttpPost]
+        public IActionResult AddProduct(int productId, int fridgeId)
+        {
+            var fridgeProduct = new FridgeProduct
+            {
+                FridgeId = fridgeId,
+                ProductId = productId,
+            };
+            var products = GetFridgeProductsNamesFromCache();
+            products.Add(fridgeProduct);
+            SaveFridgeProductsNamesToCache(products);
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult RemoveProduct(int productId, int fridgeId)
+        {
+            var fridgeProduct = new FridgeProduct
+            {
+                FridgeId = fridgeId,
+                ProductId = productId,
+            };
+            var products = GetFridgeProductsNamesFromCache();
+            var productToRemove = products.FirstOrDefault(p => p.ProductId == productId && p.FridgeId == fridgeId);
+
+            if (productToRemove != null)
+            {
+                products.Remove(productToRemove);
+            }
+
+            SaveFridgeProductsNamesToCache(products);
+
+            return Ok();
+        }
+
+        private List<FridgeProduct> GetFridgeProductsNamesFromCache()
+        {
+            return _memoryCache.GetOrCreate("FridgeProductsNames", entry =>
+            {
+                entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                return new List<FridgeProduct>();
+            });
+        }
+
+        private void SaveFridgeProductsNamesToCache(List<FridgeProduct> products)
+        {
+            _memoryCache.Set("FridgeProductsNames", products, new MemoryCacheEntryOptions
+            {
+                SlidingExpiration = TimeSpan.FromMinutes(30)
+            });
+        }
     }
 }

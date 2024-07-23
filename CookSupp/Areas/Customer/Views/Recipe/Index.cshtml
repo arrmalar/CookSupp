@@ -1,88 +1,34 @@
-﻿@* 
+﻿<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient m-lg-0 py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="text-white py-2">My recipes</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pb-3">
+            <div class="col-6"></div>
+            <div class="col-6 text-end">
+                <a asp-area="Admin" asp-controller="Recipe" asp-action="Create" class="btn btn-primary">
+                    Create New Recipe
+                </a>
+            </div>
+        </div>
 
-Wyświetlanie wszystkich przepisów
-- filtry które pozwalają na wyszukiwanie
-- możliwość oznacznie przepisu jako ulubiony
-
-*@
-
-<div class="m-4">
-    <h1 class="border-bottom pb-3 mb-4">Create Recipe</h1>
-    <form method="post">
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label" for="emailAddress">Email Address:</label>
-            <div class="col-sm-9">
-                <input type="email" class="form-control" id="emailAddress" placeholder="Email Address" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label" for="phoneNumber">Mobile Number:</label>
-            <div class="col-sm-9">
-                <input type="number" class="form-control" id="phoneNumber" placeholder="Phone Number" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Date of Birth:</label>
-            <div class="col-sm-3">
-                <select class="form-select" required>
-                    <option value="">Date</option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <select class="form-select" required>
-                    <option value="">Month</option>
-                </select>
-            </div>
-            <div class="col-sm-3">
-                <select class="form-select">
-                    <option>Year</option>
-                </select>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label" for="postalAddress">Postal Address:</label>
-            <div class="col-sm-9">
-                <textarea rows="3" class="form-control" id="postalAddress" placeholder="Postal Address" required></textarea>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label" for="ZipCode">Zip Code:</label>
-            <div class="col-sm-9">
-                <input type="text" class="form-control" id="ZipCode" placeholder="Zip Code" required>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label" for="uploadImage">Upload Image:</label>
-            <div class="col-sm-9">
-                <input type="file" class="form-control" id="uploadImage">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <label class="col-sm-3 col-form-label">Gender:</label>
-            <div class="col-sm-9 mt-2">
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="gender" id="radioMale">
-                    <label class="form-check-label" for="radioMale">Male</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" name="gender" id="radioFemale">
-                    <label class="form-check-label" for="radioFemale">Female</label>
-                </div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-9 offset-sm-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="checkAgree" value="agree">
-                    <label class="form-check-label" for="checkAgree">I agree to the <a href="#">Terms and Conditions</a></label>
-                </div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-sm-9 offset-sm-3">
-                <input type="submit" class="btn btn-primary" value="Submit">
-                <input type="reset" class="btn btn-secondary ms-2" value="Reset">
-            </div>
-        </div>
-    </form>
+        <table id="recipeTblData" class="table table-bordered table-striped" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>User</th>
+                    <th>Products</th>
+                    <th></th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/recipe.js"></script>
+}

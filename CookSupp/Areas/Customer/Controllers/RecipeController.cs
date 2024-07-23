@@ -1,7 +1,5 @@
 ﻿using CookSupp.DataAccess.Repository.IRepository;
 using CookSupp.Models;
-using CookSupp.Models.ViewModels;
-using CookSupp.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -84,9 +82,24 @@ namespace CookSupp.Areas.Customer.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Details(int recipeId)
+        {
+            return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
         public IActionResult GetAll()
         {
-            var objRecipeList = _unitOfWork.RecipeRepository.GetAll().ToList();
+            var objRecipeList = _unitOfWork.RecipeRepository.GetAll(r => r.Approved, includeProperties: "ApplicationUser").ToList();
+            return Json(new { data = objRecipeList });
+        }
+
+        [HttpGet]
+        public IActionResult GetAllFiltered(string userId)
+        {
+            var objRecipeList = _unitOfWork.RecipeRepository.GetAll(r => r.ApplicationUserId == userId,includeProperties: "ApplicationUser").ToList();
             return Json(new { data = objRecipeList });
         }
 

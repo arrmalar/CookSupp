@@ -1,9 +1,11 @@
 ﻿using CookSupp.DataAccess.Repository.IRepository;
 using CookSupp.Models;
+using CookSupp.Models.ViewModels;
 using CookSupp.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using System.Security.Claims;
 
 namespace CookSupp.Areas.Admin.Controllers
 {
@@ -21,35 +23,47 @@ namespace CookSupp.Areas.Admin.Controllers
 
         public IActionResult Index()
         {
-            var objRecipeList = _unitOfWork.RecipeRepository.GetAll();
-            return View(objRecipeList);
+            return View();
         }
 
         public IActionResult Create()
         {
-            return View();
+            SaveRecipeProductsNamesToCache(new List<RecipeProduct>());
+            return View(new Recipe());
         }
 
         [HttpPost]
         public IActionResult Create(Recipe recipe)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _unitOfWork.RecipeRepository.Add(recipe);
-                _unitOfWork.Save();
-                TempData["success"] = "Product created successfully";
-                return RedirectToAction("Index");
+                return View();
             }
-            return View();
+
+            recipe.RecipeProducts = GetRecipeProductsNamesFromCache();
+
+            _unitOfWork.RecipeRepository.Add(recipe);
+            _unitOfWork.Save();
+            TempData["success"] = "Recipe created successfully";
+            return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int? id)
         {
-            var recipe = _unitOfWork.RecipeRepository.Get(p => p.Id == id);
+            var recipe = _unitOfWork.RecipeRepository.Get(p => p.Id == id, includeProperties: "ApplicationUser,RecipeProducts");
+            var recipeProducts = recipe.RecipeProducts.Select(rp => rp.ProductId).ToList();
 
             if (recipe != null)
             {
-                return View(recipe);
+                var model = new RecipeVM
+                {
+                    Recipe = recipe,
+                    SelectedProductsIds = recipeProducts
+                };
+
+                SaveRecipeProductsNamesToCache(recipe.RecipeProducts.ToList());
+
+                return View(model);
             }
 
             return NotFound();
@@ -58,13 +72,36 @@ namespace CookSupp.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Edit(Recipe? recipe)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
+                return View(recipe);
+            }
+
+            if (recipe != null)
+            {
+                recipe.RecipeProducts = new List<RecipeProduct>();
+
+                foreach (var product in GetRecipeProductsNamesFromCache())
+                {
+                    recipe.RecipeProducts.Add(new RecipeProduct
+                    {
+                        ProductId = product.ProductId,
+                        RecipeId = product.RecipeId
+                    });
+                }
+
                 _unitOfWork.RecipeRepository.Update(recipe);
                 _unitOfWork.Save();
-                TempData["success"] = "Recipe edited successfully";
-                return RedirectToAction("Index");
             }
+
+            TempData["success"] = "Fridge edited successfully";
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Details(int recipeId)
+        {
             return View();
         }
 
@@ -74,8 +111,6 @@ namespace CookSupp.Areas.Admin.Controllers
             var objRecipeList = _unitOfWork.RecipeRepository.GetAll(includeProperties: "ApplicationUser").ToList();
             return Json(new { data = objRecipeList });
         }
-
-
 
         public IActionResult Delete(int? id)
         {
@@ -115,6 +150,7 @@ namespace CookSupp.Areas.Admin.Controllers
                 RecipeId = recipeId,
                 ProductId = productId,
             };
+
             var products = GetRecipeProductsNamesFromCache();
             var productToRemove = products.FirstOrDefault(p => p.ProductId == productId && p.RecipeId == recipeId);
 

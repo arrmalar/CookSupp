@@ -3,8 +3,8 @@ $(document).ready(function () {
     loadDataTable();
 });
 function loadDataTable() {
-    dataTable = $('#fridgeTblData').DataTable({
-        "ajax": { url: '/admin/fridge/getall' },
+    dataTable = $('#fridgeTblDataCustomer').DataTable({
+        "ajax": { url: '/customer/fridge/getall' },
         "columns": [
             { data: 'name', "width": "25%" },
             { data: 'applicationUser.id', "width": "45%" },
@@ -12,8 +12,8 @@ function loadDataTable() {
                 data: 'id',
                 "render": function (data) {
                     return `<div class="w-100 btn-group" role="group">
-                     <a href="/admin/fridge/edit?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>               
-                     <a onClick=Delete('/admin/fridge/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
+                        <a href="/customer/fridge/edit?id=${data}" class="btn btn-primary mx-2"> <i class="bi bi-pencil-square"></i> Edit</a>
+                        <a onClick=Delete('/customer/fridge/delete/${data}') class="btn btn-danger mx-2"> <i class="bi bi-trash-fill"></i> Delete</a>
                     </div>`
                 },
                 "width": "30%"
